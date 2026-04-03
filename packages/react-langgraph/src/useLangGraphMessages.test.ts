@@ -1737,6 +1737,135 @@ describe("useLangGraphMessages", {}, () => {
     });
   });
 
+  it("Correctly accumulates chunk usage_metadata", async () => {
+    const mockStreamCallback = mockStreamCallbackFactory([
+      metadataEvent,
+      {
+        event: "messages",
+        data: [
+          {
+            id: "run-1",
+            content: "",
+            additional_kwargs: {},
+            response_metadata: { model_name: "claude-3-7-sonnet-latest" },
+            type: "AIMessageChunk",
+            name: null,
+            tool_calls: [],
+            invalid_tool_calls: [],
+            tool_call_chunks: [],
+          },
+          {
+            run_attempt: 1,
+          },
+        ],
+      },
+      {
+        event: "messages",
+        data: [
+          {
+            id: "run-1",
+            content: "Hello!",
+            additional_kwargs: {},
+            response_metadata: { model_name: "claude-3-7-sonnet-latest" },
+            type: "AIMessageChunk",
+            name: null,
+            tool_calls: [],
+            invalid_tool_calls: [],
+            tool_call_chunks: [],
+            usage_metadata: {
+              input_tokens: 3,
+              output_tokens: 1,
+              total_tokens: 2,
+            },
+          },
+          {
+            run_attempt: 1,
+          },
+        ],
+      },
+      {
+        event: "messages",
+        data: [
+          {
+            id: "run-1",
+            content: " How may I assist you today?",
+            additional_kwargs: {},
+            response_metadata: { model_name: "claude-3-7-sonnet-latest" },
+            type: "AIMessageChunk",
+            name: null,
+            tool_calls: [],
+            invalid_tool_calls: [],
+            tool_call_chunks: [],
+            usage_metadata: {
+              input_tokens: 1,
+              output_tokens: 2,
+              total_tokens: 3,
+              input_token_details: {
+                cache_creation: 1,
+                cache_read: 1,
+              },
+            },
+          },
+          {
+            run_attempt: 1,
+          },
+        ],
+      },
+      {
+        event: "messages",
+        data: [
+          {
+            id: "run-1",
+            content: "",
+            additional_kwargs: {},
+            response_metadata: { model_name: "claude-3-7-sonnet-latest" },
+            type: "AIMessageChunk",
+            name: null,
+            tool_calls: [],
+            invalid_tool_calls: [],
+            tool_call_chunks: [],
+            usage_metadata: null,
+          },
+          {
+            run_attempt: 1,
+          },
+        ],
+      },
+    ]);
+
+    const { result } = renderHook(() =>
+      useLangGraphMessages({
+        stream: mockStreamCallback,
+        appendMessage: appendLangChainChunk,
+      }),
+    );
+
+    act(() => {
+      result.current.sendMessage(
+        [{ id: "user-1", type: "human", content: "Plan" }],
+        {},
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.messages).toHaveLength(2);
+      expect(result.current.messages[1]!.id).toEqual("run-1");
+      expect(
+        result.current.messages[1]!.type === "ai" &&
+          result.current.messages[1]!.usage_metadata,
+      ).toEqual({
+        input_tokens: 4,
+        output_tokens: 3,
+        total_tokens: 5,
+        output_token_details: {},
+        input_token_details: {
+          cache_creation: 1,
+          cache_read: 1,
+        },
+      });
+    });
+  });
+
   it("reconciles with final values snapshot after stream ends", async () => {
     // During streaming, tuple accumulates partial content for ai-1.
     // The final values snapshot has the complete ai-1 content.

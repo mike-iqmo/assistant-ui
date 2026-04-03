@@ -1,9 +1,84 @@
 import {
+  InputTokenDetails,
   LangChainMessage,
   LangChainMessageChunk,
   MessageContentText,
+  ModalitiesTokenDetails,
+  OutputTokenDetails,
+  UsageMetadata,
 } from "./types";
 import { parsePartialJsonObject } from "assistant-stream/utils";
+
+function mergeModalitiesTokenDetails(
+  a?: ModalitiesTokenDetails,
+  b?: ModalitiesTokenDetails,
+): ModalitiesTokenDetails {
+  const output: ModalitiesTokenDetails = {};
+  if (a?.audio !== undefined || b?.audio !== undefined) {
+    output.audio = (a?.audio ?? 0) + (b?.audio ?? 0);
+  }
+  if (a?.image !== undefined || b?.image !== undefined) {
+    output.image = (a?.image ?? 0) + (b?.image ?? 0);
+  }
+  if (a?.video !== undefined || b?.video !== undefined) {
+    output.video = (a?.video ?? 0) + (b?.video ?? 0);
+  }
+  if (a?.document !== undefined || b?.document !== undefined) {
+    output.document = (a?.document ?? 0) + (b?.document ?? 0);
+  }
+  if (a?.text !== undefined || b?.text !== undefined) {
+    output.text = (a?.text ?? 0) + (b?.text ?? 0);
+  }
+  return output;
+}
+
+function mergeInputTokenDetails(
+  a?: InputTokenDetails,
+  b?: InputTokenDetails,
+): InputTokenDetails {
+  const output: InputTokenDetails = {
+    ...mergeModalitiesTokenDetails(a, b),
+  };
+  if (a?.cache_read !== undefined || b?.cache_read !== undefined) {
+    output.cache_read = (a?.cache_read ?? 0) + (b?.cache_read ?? 0);
+  }
+  if (a?.cache_creation !== undefined || b?.cache_creation !== undefined) {
+    output.cache_creation = (a?.cache_creation ?? 0) + (b?.cache_creation ?? 0);
+  }
+  return output;
+}
+
+function mergeOutputTokenDetails(
+  a?: OutputTokenDetails,
+  b?: OutputTokenDetails,
+): OutputTokenDetails {
+  const output: OutputTokenDetails = {
+    ...mergeModalitiesTokenDetails(a, b),
+  };
+  if (a?.reasoning !== undefined || b?.reasoning !== undefined) {
+    output.reasoning = (a?.reasoning ?? 0) + (b?.reasoning ?? 0);
+  }
+  return output;
+}
+
+function mergeUsageMetadata(
+  a?: UsageMetadata,
+  b?: UsageMetadata,
+): UsageMetadata {
+  return {
+    input_tokens: (a?.input_tokens ?? 0) + (b?.input_tokens ?? 0),
+    output_tokens: (a?.output_tokens ?? 0) + (b?.output_tokens ?? 0),
+    total_tokens: (a?.total_tokens ?? 0) + (b?.total_tokens ?? 0),
+    input_token_details: mergeInputTokenDetails(
+      a?.input_token_details,
+      b?.input_token_details,
+    ),
+    output_token_details: mergeOutputTokenDetails(
+      a?.output_token_details,
+      b?.output_token_details,
+    ),
+  };
+}
 
 /**
  * Merges an AIMessageChunk into a previous message. Chunks must have
@@ -85,9 +160,15 @@ export const appendLangChainChunk = (
     }
   }
 
+  const newUsageMetadata = mergeUsageMetadata(
+    prev.usage_metadata,
+    curr.usage_metadata,
+  );
+
   return {
     ...prev,
     content: newContent,
     tool_calls: newToolCalls,
+    usage_metadata: newUsageMetadata,
   };
 };

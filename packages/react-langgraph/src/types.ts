@@ -116,6 +116,31 @@ type AssistantMessageContentComplex =
 type UserMessageContent = string | UserMessageContentComplex[];
 type AssistantMessageContent = string | AssistantMessageContentComplex[];
 
+export type ModalitiesTokenDetails = {
+  text?: number;
+  image?: number;
+  audio?: number;
+  video?: number;
+  document?: number;
+};
+
+export type OutputTokenDetails = ModalitiesTokenDetails & {
+  reasoning?: number;
+};
+
+export type InputTokenDetails = ModalitiesTokenDetails & {
+  cache_read?: number;
+  cache_creation?: number;
+};
+
+export type UsageMetadata = {
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  input_token_details?: InputTokenDetails;
+  output_token_details?: OutputTokenDetails;
+};
+
 export type LangChainMessage =
   | {
       id?: string;
@@ -150,6 +175,7 @@ export type LangChainMessage =
         tool_outputs?: MessageContentComputerCall[];
         metadata?: Record<string, unknown>;
       };
+      usage_metadata?: UsageMetadata;
     };
 
 export type LangChainMessageChunk = {
@@ -157,6 +183,7 @@ export type LangChainMessageChunk = {
   type: "AIMessageChunk";
   content?: AssistantMessageContent | undefined;
   tool_call_chunks?: LangChainToolCallChunk[] | undefined;
+  usage_metadata?: UsageMetadata | undefined;
 };
 
 export type LangChainEvent = {
