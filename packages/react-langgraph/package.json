@@ -1,6 +1,6 @@
 {
   "name": "@iqmo/react-langgraph",
-  "version": "0.13.8",
+  "version": "0.13.9",
   "description": "LangGraph adapter for assistant-ui",
   "keywords": [
     "langgraph",
