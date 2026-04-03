@@ -251,7 +251,7 @@ const truncateLangChainMessages = (
   return truncated;
 };
 
-const useLangGraphRuntimeImpl = ({
+export const useLangGraphRuntimeImpl = ({
   autoCancelPendingToolCalls,
   adapters: { attachments, feedback, speech } = {},
   unstable_allowCancellation,
