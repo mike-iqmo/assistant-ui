@@ -1,5 +1,29 @@
 # @assistant-ui/react-google-adk
 
+## 0.0.5
+
+### Patch Changes
+
+- 376bb00: chore: update dependencies
+- Updated dependencies [42bc640]
+- Updated dependencies [376bb00]
+- Updated dependencies [87e7761]
+  - @assistant-ui/core@0.1.13
+  - assistant-cloud@0.1.25
+
+## 0.0.4
+
+### Patch Changes
+
+- 5e23896: fix: skip partial functionCall events in AdkEventAccumulator to prevent incomplete tool calls from hanging the runtime
+- Updated dependencies [de29641]
+- Updated dependencies [a8bf84b]
+- Updated dependencies [5fd5c3d]
+- Updated dependencies [2c5cd97]
+- Updated dependencies [ec50e8a]
+  - @assistant-ui/core@0.1.11
+  - assistant-stream@0.3.10
+
 ## 0.0.3
 
 ### Patch Changes

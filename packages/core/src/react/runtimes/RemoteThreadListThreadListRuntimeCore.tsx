@@ -39,7 +39,7 @@ export class RemoteThreadListThreadListRuntimeCore
 
   private _mainThreadId!: string;
   private readonly _state = new OptimisticState<RemoteThreadState>({
-    isLoading: false,
+    isLoading: true,
     newThreadId: undefined,
     threadIds: [],
     archivedThreadIds: [],
@@ -103,6 +103,7 @@ export class RemoteThreadListThreadListRuntimeCore
 
             return {
               ...state,
+              isLoading: false,
               threadIds: newThreadIds,
               archivedThreadIds: newArchivedThreadIds,
               threadIdMap: {
@@ -115,6 +116,13 @@ export class RemoteThreadListThreadListRuntimeCore
               },
             };
           },
+        })
+        .catch(() => {
+          this._loadThreadsPromise = undefined;
+          this._state.update({
+            ...this._state.baseValue,
+            isLoading: false,
+          });
         })
         .then(() => {});
     }
@@ -144,6 +152,7 @@ export class RemoteThreadListThreadListRuntimeCore
     this.switchToNewThread();
   }
 
+  private _initialThreadLoaded = false;
   private useProvider;
 
   public __internal_setOptions(options: RemoteThreadListOptions) {
@@ -162,6 +171,12 @@ export class RemoteThreadListThreadListRuntimeCore
 
   public __internal_load() {
     this.getLoadThreadsPromise(); // begin loading on initial bind
+    const startThreadId =
+      this._options.threadId ?? this._options.initialThreadId;
+    if (!this._initialThreadLoaded && startThreadId) {
+      this._initialThreadLoaded = true;
+      this.switchToThread(startThreadId).catch(() => {});
+    }
   }
 
   public get isLoading() {

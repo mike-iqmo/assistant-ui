@@ -1,6 +1,6 @@
 {
   "name": "@assistant-ui/mcp-docs-server",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "MCP server for assistant-ui documentation and examples",
   "keywords": [
     "mcp",
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@assistant-ui/x-buildutils": "workspace:*",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "tsx": "^4.21.0",
     "vitest": "^4.1.2"
   },
