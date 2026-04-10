@@ -1,6 +1,7 @@
 export {
   useLangGraphRuntime,
   useLangGraphRuntimeImpl,
+  type UseLangGraphRuntimeOptions,
   useLangGraphSend,
   useLangGraphSendCommand,
   useLangGraphInterruptState,

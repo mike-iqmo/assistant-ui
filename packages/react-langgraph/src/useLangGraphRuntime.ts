@@ -164,9 +164,10 @@ export const useLangGraphMessageMetadata = () => {
   return messageMetadata;
 };
 
-type UseLangGraphRuntimeOptions = {
+export type UseLangGraphRuntimeOptions = {
   autoCancelPendingToolCalls?: boolean | undefined;
   unstable_allowCancellation?: boolean | undefined;
+  convertMessages?: useExternalMessageConverter.Callback<LangChainMessage>;
   stream: LangGraphStreamCallback<LangChainMessage>;
   /**
    * Resolves a checkpoint ID for a given thread and message history.
@@ -257,6 +258,7 @@ export const useLangGraphRuntimeImpl = ({
   unstable_allowCancellation,
   stream,
   onSwitchToThread: _onSwitchToThread,
+  convertMessages = convertLangChainMessages,
   load = _onSwitchToThread,
   getCheckpointId,
   eventHandlers,
@@ -309,7 +311,7 @@ export const useLangGraphRuntimeImpl = ({
   };
 
   const threadMessages = useExternalMessageConverter({
-    callback: convertLangChainMessages,
+    callback: convertMessages,
     messages,
     isRunning: effectiveIsRunning,
     metadata: converterMetadata,
